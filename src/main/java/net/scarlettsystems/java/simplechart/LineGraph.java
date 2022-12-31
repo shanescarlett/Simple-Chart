@@ -25,6 +25,7 @@ class LineGraph extends JComponent
 	private Point dragStartPoint = null;
 	private Rectangle selectionRectangle = null;
 	private ResizeInputListener resizeInputListener = null;
+	private boolean resizeEnabled = true;
 
 	interface ResizeInputListener
 	{
@@ -212,70 +213,70 @@ class LineGraph extends JComponent
 		return getHeight() - (int)Math.round(portion * (double)getHeight());
 	}
 
-	public double getxAxisMin()
+	double getxAxisMin()
 	{
 		return xAxisMin;
 	}
 
-	public void setxAxisMin(double xAxisMin)
+	void setxAxisMin(double xAxisMin)
 	{
 		xAutoScale = false;
 		this.xAxisMin = xAxisMin;
 		repaint();
 	}
 
-	public double getxAxisMax()
+	double getxAxisMax()
 	{
 		return xAxisMax;
 	}
 
-	public void setxAxisMax(double xAxisMax)
+	void setxAxisMax(double xAxisMax)
 	{
 		xAutoScale = false;
 		this.xAxisMax = xAxisMax;
 		repaint();
 	}
 
-	public double getyAxisMin()
+	double getyAxisMin()
 	{
 		return yAxisMin;
 	}
 
-	public void setyAxisMin(double yAxisMin)
+	void setyAxisMin(double yAxisMin)
 	{
 		yAutoScale = false;
 		this.yAxisMin = yAxisMin;
 		repaint();
 	}
 
-	public double getyAxisMax()
+	double getyAxisMax()
 	{
 		return yAxisMax;
 	}
 
-	public void setyAxisMax(double yAxisMax)
+	void setyAxisMax(double yAxisMax)
 	{
 		yAutoScale = false;
 		this.yAxisMax = yAxisMax;
 		repaint();
 	}
 
-	public void setLineColour(Object identifier, Color lineColour)
+	void setLineColour(Object identifier, Color lineColour)
 	{
 		lineColours.put(identifier, lineColour);
 	}
 
-	public void setxAutoScaleEnabled(boolean enabled)
+	void setxAutoScaleEnabled(boolean enabled)
 	{
 		xAutoScale = enabled;
 	}
 
-	public void setyAutoScaleEnabled(boolean enabled)
+	void setyAutoScaleEnabled(boolean enabled)
 	{
 		yAutoScale = enabled;
 	}
 
-	public void setData(Object identifier, double[] x, double[] y)
+	void setData(Object identifier, double[] x, double[] y)
 	{
 		if(x.length != y.length)
 		{
@@ -311,12 +312,12 @@ class LineGraph extends JComponent
 		SwingUtilities.invokeLater(this::repaint);
 	}
 
-	public float getLineThickness()
+	float getLineThickness()
 	{
 		return lineThickness;
 	}
 
-	public void setLineThickness(float lineThickness)
+	void setLineThickness(float lineThickness)
 	{
 		this.lineThickness = lineThickness;
 	}
@@ -343,14 +344,19 @@ class LineGraph extends JComponent
 		return value;
 	}
 
-	public boolean isLegendEnabled()
+	boolean isLegendEnabled()
 	{
 		return legendEnabled;
 	}
 
-	public void setLegendEnabled(boolean legendEnabled)
+	void setLegendEnabled(boolean legendEnabled)
 	{
 		this.legendEnabled = legendEnabled;
+	}
+
+	void setResizeEnabled(boolean enabled)
+	{
+		this.resizeEnabled = enabled;
 	}
 
 	void setResizeInputListener(ResizeInputListener l)
