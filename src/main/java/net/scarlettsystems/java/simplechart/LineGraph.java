@@ -221,6 +221,7 @@ class LineGraph extends JComponent
 	{
 		xAutoScale = false;
 		this.xAxisMin = xAxisMin;
+		repaint();
 	}
 
 	public double getxAxisMax()
@@ -232,6 +233,7 @@ class LineGraph extends JComponent
 	{
 		xAutoScale = false;
 		this.xAxisMax = xAxisMax;
+		repaint();
 	}
 
 	public double getyAxisMin()
@@ -243,6 +245,7 @@ class LineGraph extends JComponent
 	{
 		yAutoScale = false;
 		this.yAxisMin = yAxisMin;
+		repaint();
 	}
 
 	public double getyAxisMax()
@@ -254,6 +257,7 @@ class LineGraph extends JComponent
 	{
 		yAutoScale = false;
 		this.yAxisMax = yAxisMax;
+		repaint();
 	}
 
 	public void setLineColour(Object identifier, Color lineColour)
