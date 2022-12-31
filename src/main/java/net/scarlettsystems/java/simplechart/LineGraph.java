@@ -39,12 +39,16 @@ class LineGraph extends JComponent
 			@Override
 			public void mousePressed(MouseEvent e)
 			{
+				if(!resizeEnabled)
+					return;
 				dragStartPoint = new Point(e.getX(), e.getY());
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
+				if(!resizeEnabled)
+					return;
 				int x = dragStartPoint.x;
 				int y = dragStartPoint.y;
 				int x1 = e.getX();
@@ -63,6 +67,8 @@ class LineGraph extends JComponent
 			@Override
 			public void mouseDragged(MouseEvent e)
 			{
+				if(!resizeEnabled)
+					return;
 				int x = dragStartPoint.x;
 				int y = dragStartPoint.y;
 				int x1 = e.getX();
