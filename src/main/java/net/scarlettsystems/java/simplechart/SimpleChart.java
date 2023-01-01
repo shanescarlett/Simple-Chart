@@ -23,8 +23,8 @@ public class SimpleChart extends JPanel
 
 	private XAxisLocation xAxisLocation;
 	private YAxisLocation yAxisLocation;
-	private int xTickCount = 10;
-	private int yTickCount = 10;
+	private int xTickCount = 5;
+	private int yTickCount = 5;
 
 	private LabelGenerator labelGenerator;
 
@@ -96,6 +96,7 @@ public class SimpleChart extends JPanel
 		if(xAxisBottom != null)
 			centrePanel.remove(xAxisBottom);
 		xAxisBottom = new XAxis(true, idx -> labelGenerator.getBottomXTickLabel(getXValue(idx), idx));
+		xAxisBottom.setTickCount(xTickCount);
 		centrePanel.add(xAxisBottom, BorderLayout.SOUTH);
 	}
 
@@ -104,6 +105,7 @@ public class SimpleChart extends JPanel
 		if(xAxisTop != null)
 			centrePanel.remove(xAxisTop);
 		xAxisTop = new XAxis(false, idx -> labelGenerator.getTopXTickLabel(getXValue(idx), idx));
+		xAxisTop.setTickCount(xTickCount);
 		centrePanel.add(xAxisTop, BorderLayout.NORTH);
 	}
 
@@ -112,6 +114,7 @@ public class SimpleChart extends JPanel
 		if(yAxisLeft != null)
 			leftPanel.remove(yAxisLeft);
 		yAxisLeft = new YAxis(true, idx -> labelGenerator.getLeftYTickLabel(getYValue(idx), idx));
+		yAxisLeft.setTickCount(yTickCount);
 		leftPanel.add(yAxisLeft, BorderLayout.CENTER);
 	}
 
@@ -120,6 +123,7 @@ public class SimpleChart extends JPanel
 		if(yAxisRight != null)
 			rightPanel.remove(yAxisRight);
 		yAxisRight = new YAxis(false, idx -> labelGenerator.getRightYTickLabel(getYValue(idx), idx));
+		yAxisRight.setTickCount(yTickCount);
 		rightPanel.add(yAxisRight, BorderLayout.CENTER);
 	}
 
@@ -146,6 +150,7 @@ public class SimpleChart extends JPanel
 			throw new IllegalArgumentException("Number of X ticks must be greater than 2");
 		xAxisBottom.setTickCount(count);
 		xAxisTop.setTickCount(count);
+		graph.setXGridCount(count);
 	}
 
 	/***
@@ -159,6 +164,7 @@ public class SimpleChart extends JPanel
 			throw new IllegalArgumentException("Number of Y ticks must be greater than 2");
 		yAxisLeft.setTickCount(count);
 		yAxisRight.setTickCount(count);
+		graph.setYGridCount(count);
 	}
 
 	public void setXAxisMin(double value)
@@ -192,17 +198,16 @@ public class SimpleChart extends JPanel
 	public void setXAxisAutoEnabled(boolean enabled)
 	{
 		graph.setxAutoScaleEnabled(enabled);
-		getBottomXAxis();
-		getTopXAxis();
-		SwingUtilities.invokeLater(SimpleChart.this::refresh);
 	}
 
 	public void setYAxisAutoEnabled(boolean enabled)
 	{
 		graph.setyAutoScaleEnabled(enabled);
-		getLeftAxis();
-		getRightAxis();
-		SwingUtilities.invokeLater(SimpleChart.this::refresh);
+	}
+
+	public void setAxesAutoEnabled(boolean enabled)
+	{
+		graph.setAxisAutoScaleEnabled(enabled);
 	}
 
 	public void setLineThickness(float thickness)
@@ -215,8 +220,19 @@ public class SimpleChart extends JPanel
 		graph.setLineColour(identifier, colour);
 	}
 
+	public void setLegendEnabled(boolean enabled)
+	{
+		graph.setLegendEnabled(enabled);
+	}
+
+	public void setGridEnabled(boolean enabled)
+	{
+		graph.setGridEnabled(enabled);
+	}
+
 	/***
-	 * Set the data for the line graph. The identifier should be a hashable object used to refer to the graph.
+	 * Draw a line specified by the arrays x and y.
+	 * The identifier should be a hashable object used to refer to the graph.
 	 * Setting the data with the same identifier will overwrite the original line. Multiple line graphs can be drawn
 	 * by specifying different identifiers. The graph's legend, if enabled, will call the identifier's toString() method
 	 * to display its name. Arrays x and y must be of equal length.
