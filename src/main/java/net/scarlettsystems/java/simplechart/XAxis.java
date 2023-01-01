@@ -67,7 +67,7 @@ class XAxis extends JComponent
 			if(i == 0)
 				labelStartX = 0;
 			else if(i == tickCount - 1)
-				labelStartX = getWidth() - labelWidth;
+				labelStartX = getWidth() - fm.stringWidth(label);
 			else
 				labelStartX = tickLocation - fm.stringWidth(label) / 2;
 
