@@ -74,16 +74,17 @@ class XAxis extends JComponent
 			g.fillRect(tickStartX, tickTop, tickThickness, tickHeight);
 			g.drawString(label, labelStartX, labelBottom);
 		}
-
-		//Draw labels
-
-
 	}
 
 	void setTickCount(int count)
 	{
 		tickCount = count;
 		this.repaint();
+	}
+
+	int getTickCount()
+	{
+		return this.tickCount;
 	}
 
 	void setTickThickness(int thickness)
