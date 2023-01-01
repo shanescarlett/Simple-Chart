@@ -36,6 +36,33 @@ public class Frame extends JFrame
 		chart.setYAxisMin(-1);
 		chart.setYAxisMax(1);
 		chart.setYTickCount(5);
+		chart.setGridEnabled(true);
+		chart.setTickLabelGenerator(new SimpleChart.LabelGenerator()
+		{
+			@Override
+			public String getTopXTickLabel(double value, int index)
+			{
+				return String.format("%.3f", value);
+			}
+
+			@Override
+			public String getBottomXTickLabel(double value, int index)
+			{
+				return String.format("%.3f", value);
+			}
+
+			@Override
+			public String getLeftYTickLabel(double value, int index)
+			{
+				return String.format("%.3f", value);
+			}
+
+			@Override
+			public String getRightYTickLabel(double value, int index)
+			{
+				return String.format("%.3f", value);
+			}
+		});
 
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
@@ -53,7 +80,6 @@ public class Frame extends JFrame
 
 	private void setAutoScale()
 	{
-		chart.setXAxisAutoEnabled(true);
-		chart.setYAxisAutoEnabled(true);
+		chart.setAxesAutoEnabled(true);
 	}
 }
