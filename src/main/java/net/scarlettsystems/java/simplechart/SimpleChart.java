@@ -12,10 +12,13 @@ public class SimpleChart extends JPanel
 
 
 	private final LineGraph graph;
-	private Component xAxisBottom = null;
-	private Component xAxisTop = null;
-	private Component yAxisLeft = null;
-	private Component yAxisRight = null;
+	private XAxis xAxisBottom = null;
+	private XAxis xAxisTop = null;
+	private YAxis yAxisLeft = null;
+	private YAxis yAxisRight = null;
+	private final JPanel centrePanel;
+	private final JPanel leftPanel;
+	private final JPanel rightPanel;
 
 
 	private XAxisLocation xAxisLocation;
@@ -23,144 +26,139 @@ public class SimpleChart extends JPanel
 	private int xTickCount = 10;
 	private int yTickCount = 10;
 
+	private LabelGenerator labelGenerator;
+
+	public interface LabelGenerator
+	{
+		String getTopXTickLabel(double value, int index);
+		String getBottomXTickLabel(double value, int index);
+		String getLeftYTickLabel(double value, int index);
+		String getRightYTickLabel(double value, int index);
+	}
+
 	public SimpleChart()
 	{
 		this.setLayout(new BorderLayout());
 		this.graph = new LineGraph();
-		this.add(graph, BorderLayout.CENTER);
+		this.graph.setResizeInputListener(getResizeInputListener());
+		centrePanel = new JPanel();
+		centrePanel.setLayout(new BorderLayout());
+		leftPanel = new JPanel();
+		leftPanel.setLayout(new BorderLayout());
+
+		rightPanel = new JPanel();
+		rightPanel.setLayout(new BorderLayout());
+		centrePanel.add(graph, BorderLayout.CENTER);
 		getBottomXAxis();
 		getTopXAxis();
+		getLeftAxis();
+		getRightAxis();
 		setXAxisLocation(XAxisLocation.BOTTOM);
+
+		leftPanel.add(new Spacer(), BorderLayout.NORTH);
+		leftPanel.add(new Spacer(), BorderLayout.SOUTH);
+		rightPanel.add(new Spacer(), BorderLayout.NORTH);
+		rightPanel.add(new Spacer(), BorderLayout.SOUTH);
+		this.add(centrePanel, BorderLayout.CENTER);
+		this.add(leftPanel, BorderLayout.WEST);
+		this.add(rightPanel, BorderLayout.EAST);
+
+		this.labelGenerator = new LabelGenerator()
+		{
+			@Override
+			public String getTopXTickLabel(double value, int index)
+			{
+				return String.valueOf(value);
+			}
+
+			@Override
+			public String getBottomXTickLabel(double value, int index)
+			{
+				return String.valueOf(value);
+			}
+
+			@Override
+			public String getLeftYTickLabel(double value, int index)
+			{
+				return String.valueOf(value);
+			}
+
+			@Override
+			public String getRightYTickLabel(double value, int index)
+			{
+				return String.valueOf(value);
+			}
+		};
 	}
 
 	private void getBottomXAxis()
 	{
 		if(xAxisBottom != null)
-			this.remove(xAxisBottom);
-		xAxisBottom = new XAxis(true, idx -> String.valueOf(getXValue(idx)));
-		this.add(xAxisBottom, BorderLayout.SOUTH);
+			centrePanel.remove(xAxisBottom);
+		xAxisBottom = new XAxis(true, idx -> labelGenerator.getBottomXTickLabel(getXValue(idx), idx));
+		centrePanel.add(xAxisBottom, BorderLayout.SOUTH);
 	}
 
 	private void getTopXAxis()
 	{
 		if(xAxisTop != null)
-			this.remove(xAxisTop);
-		xAxisTop = new XAxis(false, idx -> String.valueOf(getXValue(idx)));
-		this.add(xAxisTop, BorderLayout.NORTH);
+			centrePanel.remove(xAxisTop);
+		xAxisTop = new XAxis(false, idx -> labelGenerator.getTopXTickLabel(getXValue(idx), idx));
+		centrePanel.add(xAxisTop, BorderLayout.NORTH);
 	}
 
-	private static JPanel getHorizontalTicks(int count)
+	private void getLeftAxis()
 	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(Box.createHorizontalStrut(0));
-		for(int i = 0; i < count; i++)
-		{
-			Tick tick = new Tick(Tick.Orientation.VERTICAL, 1);
-			panel.add(tick);
-			if(i < (count - 1))
-			{
-				panel.add(Box.createHorizontalGlue());
-			}
-		}
-		panel.add(Box.createHorizontalStrut(0));
-		return panel;
+		if(yAxisLeft != null)
+			leftPanel.remove(yAxisLeft);
+		yAxisLeft = new YAxis(true, idx -> labelGenerator.getLeftYTickLabel(getYValue(idx), idx));
+		leftPanel.add(yAxisLeft, BorderLayout.CENTER);
 	}
 
-	private JPanel getHorizontalLabels()
+	private void getRightAxis()
 	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		for(int i = 0; i < xTickCount; i++)
-		{
-			JLabel label = new JLabel();
-//			if(xTickLabelGenerator != null)
-//				label.setText(xTickLabelGenerator.getLabel(getXValue(i)));
-//			else
-//				label.setText(String.valueOf(getXValue(i)));
-
-			if(i == 0)
-			{
-				label.setHorizontalAlignment(SwingConstants.LEFT);
-			}
-			else if(i == xTickCount - 1)
-			{
-				label.setHorizontalAlignment(SwingConstants.RIGHT);
-			}
-			else
-			{
-				label.setHorizontalAlignment(SwingConstants.CENTER);
-			}
-
-			panel.add(label);
-			panel.addComponentListener(new ComponentAdapter()
-			{
-				@Override
-				public void componentResized(ComponentEvent e)
-				{
-					sizeXLabels(panel);
-				}
-
-				@Override
-				public void componentMoved(ComponentEvent e)
-				{
-					sizeXLabels(panel);
-				}
-			});
-		}
-		return panel;
-	}
-
-	private void sizeXLabels(JPanel panel)
-	{
-		for(int j = 0; j < panel.getComponentCount(); j++)
-		{
-			JLabel lab = ((JLabel)panel.getComponent(j));
-
-			if(j == 0)
-			{
-				setAllSizes(lab, (int)Math.round(0.5/(xTickCount - 1) * panel.getWidth()), panel.getHeight());
-			}
-			else if(j == panel.getComponentCount() - 1)
-			{
-				setAllSizes(lab, (int)Math.round(0.5/(xTickCount - 1) * panel.getWidth()), panel.getHeight());
-			}
-			else
-			{
-				setAllSizes(lab, (int)Math.round(1.0/(xTickCount - 1) * panel.getWidth()), panel.getHeight());
-			}
-		}
-	}
-
-	private static void setAllSizes(Component component, int width, int height)
-	{
-		component.setSize(new Dimension(width, height));
-		component.setPreferredSize(new Dimension(width, height));
-		component.setMinimumSize(new Dimension(width, height));
-		component.setMaximumSize(new Dimension(width, height));
+		if(yAxisRight != null)
+			rightPanel.remove(yAxisRight);
+		yAxisRight = new YAxis(false, idx -> labelGenerator.getRightYTickLabel(getYValue(idx), idx));
+		rightPanel.add(yAxisRight, BorderLayout.CENTER);
 	}
 
 	private double getXValue(int i)
 	{
-		double increment = (graph.getxAxisMax() - graph.getxAxisMin()) / (xTickCount - 1);
+		double increment = (graph.getxAxisMax() - graph.getxAxisMin()) / (xAxisBottom.getTickCount() - 1);
 		return graph.getxAxisMin() + increment * i ;
 	}
 
+	private double getYValue(int i)
+	{
+		double increment = (graph.getyAxisMax() - graph.getyAxisMin()) / (yAxisRight.getTickCount() - 1);
+		return graph.getyAxisMin() + increment * i ;
+	}
+
+	/***
+	 * Set the tick count for the X axis.
+	 * The count includes the left and rightmost ticks of the axis, and thus should be a number greater than 2.
+	 * @param count: the number of ticks
+	 */
 	public void setXTickCount(int count)
 	{
 		if(count < 2)
 			throw new IllegalArgumentException("Number of X ticks must be greater than 2");
-		this.xTickCount = count;
-		getBottomXAxis();
-		getTopXAxis();
+		xAxisBottom.setTickCount(count);
+		xAxisTop.setTickCount(count);
 	}
 
+	/***
+	 * Set the tick count for the Y axis.
+	 * The count includes the bottom and topmost ticks of the axis, and thus should be a number greater than 2.
+	 * @param count: the number of ticks
+	 */
 	public void setYTickCount(int count)
 	{
 		if(count < 2)
 			throw new IllegalArgumentException("Number of Y ticks must be greater than 2");
-		this.yTickCount = count;
+		yAxisLeft.setTickCount(count);
+		yAxisRight.setTickCount(count);
 	}
 
 	public void setXAxisMin(double value)
@@ -180,11 +178,31 @@ public class SimpleChart extends JPanel
 	public void setYAxisMin(double value)
 	{
 		graph.setyAxisMin(value);
+		getLeftAxis();
+		getRightAxis();
 	}
 
 	public void setYAxisMax(double value)
 	{
 		graph.setyAxisMax(value);
+		getLeftAxis();
+		getRightAxis();
+	}
+
+	public void setXAxisAutoEnabled(boolean enabled)
+	{
+		graph.setxAutoScaleEnabled(enabled);
+		getBottomXAxis();
+		getTopXAxis();
+		SwingUtilities.invokeLater(SimpleChart.this::refresh);
+	}
+
+	public void setYAxisAutoEnabled(boolean enabled)
+	{
+		graph.setyAutoScaleEnabled(enabled);
+		getLeftAxis();
+		getRightAxis();
+		SwingUtilities.invokeLater(SimpleChart.this::refresh);
 	}
 
 	public void setLineThickness(float thickness)
@@ -197,6 +215,16 @@ public class SimpleChart extends JPanel
 		graph.setLineColour(identifier, colour);
 	}
 
+	/***
+	 * Set the data for the line graph. The identifier should be a hashable object used to refer to the graph.
+	 * Setting the data with the same identifier will overwrite the original line. Multiple line graphs can be drawn
+	 * by specifying different identifiers. The graph's legend, if enabled, will call the identifier's toString() method
+	 * to display its name. Arrays x and y must be of equal length.
+	 *
+	 * @param identifier line graphs hashable identifier object
+	 * @param x data for the x-axis
+	 * @param y data for the y-axis
+	 */
 	public void setData(Object identifier, double[] x, double[] y)
 	{
 		graph.setData(identifier, x, y);
@@ -223,5 +251,45 @@ public class SimpleChart extends JPanel
 				xAxisBottom.setVisible(false);
 				break;
 		}
+		SwingUtilities.invokeLater(this::revalidate);
+		SwingUtilities.invokeLater(this::repaint);
+	}
+
+	public void setTickLabelGenerator(LabelGenerator g)
+	{
+		labelGenerator = g;
+		SwingUtilities.invokeLater(SimpleChart.this::refresh);
+	}
+
+	private LineGraph.ResizeInputListener getResizeInputListener()
+	{
+		return new LineGraph.ResizeInputListener()
+		{
+			@Override
+			public void onResizeRequested(Rectangle newRange)
+			{
+				double xRange = graph.getxAxisMax() -  graph.getxAxisMin();
+				double yRange = graph.getyAxisMax() -  graph.getyAxisMin();
+				double xMin = graph.getxAxisMin() + xRange * (newRange.getX() / graph.getWidth());
+				double xMax = graph.getxAxisMin() + xRange * (newRange.getMaxX() / graph.getWidth());
+				//Y coords are inverted due to pixel number vs. graph orientation
+				double yMax = graph.getyAxisMin() + yRange * (1 - newRange.getY() / graph.getHeight());
+				double yMin = graph.getyAxisMin() + yRange * (1 - newRange.getMaxY() / graph.getHeight());
+				setXAxisMin(xMin);
+				setXAxisMax(xMax);
+				setYAxisMin(yMin);
+				setYAxisMax(yMax);
+				SwingUtilities.invokeLater(SimpleChart.this::refresh);
+			}
+		};
+	}
+
+	private void refresh()
+	{
+		this.revalidate();
+		this.repaint();
+		centrePanel.revalidate();
+		leftPanel.revalidate();
+		rightPanel.revalidate();
 	}
 }
