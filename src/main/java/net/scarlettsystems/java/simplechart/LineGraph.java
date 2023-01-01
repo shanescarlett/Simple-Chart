@@ -19,6 +19,7 @@ class LineGraph extends JComponent
 	private boolean xAutoScale = true;
 	private boolean yAutoScale = true;
 	private boolean legendEnabled = false;
+	private boolean gridEnabled = false;
 
 	private float lineThickness = 1;
 
@@ -26,6 +27,11 @@ class LineGraph extends JComponent
 	private Rectangle selectionRectangle = null;
 	private ResizeInputListener resizeInputListener = null;
 	private boolean resizeEnabled = true;
+	private int xGridCount = 5;
+	private int yGridCount = 5;
+
+
+	private static Stroke dashedStroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,0, new float[]{9}, 0);
 
 	interface ResizeInputListener
 	{
@@ -90,8 +96,8 @@ class LineGraph extends JComponent
 	{
 		Graphics2D g2 = (Graphics2D)g;
 		// Draw background
-		g.setColor(getBackground());
-		g.fillRect(0, 0, getWidth(), getHeight());
+		g2.setColor(getBackground());
+		g2.fillRect(0, 0, getWidth(), getHeight());
 
 		if(!check())
 			return;
@@ -152,6 +158,22 @@ class LineGraph extends JComponent
 						accumulationSet = false;
 					}
 					g.drawLine(xStart, yStart, xStop, yStop);
+				}
+			}
+
+			if(gridEnabled)
+			{
+				g2.setColor(getForeground());
+				g2.setStroke(dashedStroke);
+				for(int i = 1; i < xGridCount - 1; i++)
+				{
+					int xPos = (int)Math.round((double)i * getWidth() / (xGridCount - 1));
+					g2.drawLine(xPos, 0, xPos, getHeight());
+				}
+				for(int i = 1; i < yGridCount - 1; i++)
+				{
+					int yPos = (int)Math.round((double)i * getHeight() / (yGridCount - 1));
+					g2.drawLine(0, yPos, getWidth(), yPos);
 				}
 			}
 
@@ -275,11 +297,20 @@ class LineGraph extends JComponent
 	void setxAutoScaleEnabled(boolean enabled)
 	{
 		xAutoScale = enabled;
+		autoSetAxes();
 	}
 
 	void setyAutoScaleEnabled(boolean enabled)
 	{
 		yAutoScale = enabled;
+		autoSetAxes();
+	}
+
+	void setAxisAutoScaleEnabled(boolean enabled)
+	{
+		xAutoScale = enabled;
+		yAutoScale = enabled;
+		autoSetAxes();
 	}
 
 	void setData(Object identifier, double[] x, double[] y)
@@ -291,6 +322,16 @@ class LineGraph extends JComponent
 		xValues.put(identifier, x);
 		yValues.put(identifier, y);
 
+		if(!lineColours.containsKey(identifier))
+		{
+			lineColours.put(identifier, Color.BLACK);
+		}
+		autoSetAxes();
+		SwingUtilities.invokeLater(this::repaint);
+	}
+
+	private void autoSetAxes()
+	{
 		if(xAutoScale)
 		{
 			xAxisMin = Double.MAX_VALUE;
@@ -311,11 +352,10 @@ class LineGraph extends JComponent
 				yAxisMax = Math.max(yAxisMax, max(yValues.get(key)));
 			}
 		}
-		if(!lineColours.containsKey(identifier))
+		if(xAutoScale || yAutoScale)
 		{
-			lineColours.put(identifier, Color.BLACK);
+			resizeInputListener.onResizeRequested(new Rectangle(getWidth(), getHeight()));
 		}
-		SwingUtilities.invokeLater(this::repaint);
 	}
 
 	float getLineThickness()
@@ -358,6 +398,21 @@ class LineGraph extends JComponent
 	void setLegendEnabled(boolean legendEnabled)
 	{
 		this.legendEnabled = legendEnabled;
+	}
+
+	void setGridEnabled(boolean enabled)
+	{
+		this.gridEnabled = enabled;
+	}
+
+	void setXGridCount(int count)
+	{
+		xGridCount = count;
+	}
+
+	void setYGridCount(int count)
+	{
+		yGridCount = count;
 	}
 
 	void setResizeEnabled(boolean enabled)
